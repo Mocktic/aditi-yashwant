@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- The link-preview card (site/preview.jpg, 1200x630). Re-render with:
+     python3 tools/serve.py &   then   bash tools/make-preview.sh -->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; background: var(--paper-bg); }
+  .card { position: relative; width: 1200px; height: 630px; display: grid; grid-template-columns: 1fr 520px; align-items: center; }
+  .frame { position: absolute; inset: 18px; }
+  .frame path { stroke-width: 4.5; }
+  .words { text-align: center; color: var(--red); padding-left: 60px; }
+  .big { font: 700 112px/0.86 var(--font-hand); letter-spacing: 2px; display: flex; justify-content: center; align-items: center; gap: 28px; }
+  .the { font: 70px/1 var(--font-script); transform: rotate(-6deg); margin: -6px 0 6px; }
+  .names { font: 46px var(--font-script); margin: 22px 0 0; }
+  .date { font: 700 84px/1 var(--font-hand); letter-spacing: 2px; margin: 4px 0 0; }
+  .under { width: 380px; margin: 0 auto; display: block; }
+  .dash { width: 40px; }
+  .art { height: 560px; display: flex; align-items: flex-end; justify-content: center; position: relative; }
+  .art img { height: 540px; }
+  .h { position: absolute; color: var(--red); width: 44px; }
+</style>
+</head>
+<body>
+  <svg class="defs"><filter id="crayon-line" x="-2%" y="-2%" width="104%" height="104%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="8" result="wob"/>
+    <feDisplacementMap in="SourceGraphic" in2="wob" scale="4" result="moved"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="2" result="grain"/>
+    <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.15" result="grainA"/>
+    <feComposite in="moved" in2="grainA" operator="in"/>
+  </filter></svg>
+  <div class="card">
+    <div class="frame"><svg viewBox="0 0 1164 594"><path filter="url(#crayon-line)" d="M-4 4 L400 1 L800 5 L1168 2 M1162 -3 L1165 300 L1161 598 M1167 590 L600 593 L-5 591 M3 597 L-1 300 L2 -4"/></svg></div>
+    <div class="words">
+      <div class="big crayon">
+        <svg class="dash" viewBox="0 0 40 44"><path d="M4 8 L 30 14 M2 22 L 36 22 M4 36 L 30 30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+        <span>SAVE</span><span>DATE</span>
+        <svg class="dash" viewBox="0 0 40 44" style="transform:scaleX(-1)"><path d="M4 8 L 30 14 M2 22 L 36 22 M4 36 L 30 30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="the crayon">the</div>
+      <p class="names">Aditi &amp; Yashwant</p>
+      <p class="date">02.12.2026</p>
+      <svg class="under" viewBox="0 0 300 16"><path d="M8 10 C 70 4, 150 3, 292 8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+    </div>
+    <div class="art">
+      <svg class="h" style="left:20px;top:90px;transform:rotate(-14deg)" viewBox="0 0 24 24"><path d="M12 21 C 5 15.5, 1.5 11.5, 2.2 7.2 C 2.9 3.6, 7.3 2.4, 9.6 5 C 10.6 6.1, 11.4 7.4, 12 8.6 C 12.8 6.8, 14 5, 16 4.2 C 19.6 2.9, 23 5.6, 21.6 9.8 C 20.6 13, 17 16.6, 12.6 20.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <svg class="h" style="right:80px;top:200px;transform:rotate(12deg)" viewBox="0 0 24 24"><path d="M12 21 C 5 15.5, 1.5 11.5, 2.2 7.2 C 2.9 3.6, 7.3 2.4, 9.6 5 C 10.6 6.1, 11.4 7.4, 12 8.6 C 12.8 6.8, 14 5, 16 4.2 C 19.6 2.9, 23 5.6, 21.6 9.8 C 20.6 13, 17 16.6, 12.6 20.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <img src="/media/couple/wedding.webp" alt="">
+    </div>
+  </div>
+</body>
+</html>

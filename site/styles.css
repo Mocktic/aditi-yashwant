@@ -1,0 +1,486 @@
+/* The look comes from the save-the-date inspiration: warm cream paper, everything drawn in one
+   crayon red, hand-lettered words, doodled hearts, a wobbly border, and the couple as photo-sticker
+   cut-outs (the cream + red edge is baked into the pictures by tools/prepare_assets.py). */
+:root {
+  --paper: #f3e7d3;
+  --paper-light: #fbf3e6;
+  --red: #a8322d; /* keep in sync with RED in tools/prepare_assets.py */
+  --red-soft: rgba(168, 50, 45, 0.14);
+  --ink: #5a2420; /* body text: a deep red-brown, softer than black on cream */
+  --sticker: #fff8ec; /* the cream edge round the couple (CREAM in prepare_assets.py) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --top: calc(var(--safe-top) + 40px); /* below the border and the progress bars */
+  --font-script: 'Caveat Brush', cursive;
+  --font-hand: 'Gaegu', 'Patrick Hand', cursive;
+  --font-small: 'Patrick Hand', 'Gaegu', cursive;
+  --pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* paper: fine fibres + a soft light in the middle + slightly darker edges */
+  --paper-bg:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.3  0 0 0 0 0.18  0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 70% 50% at 50% 42%, rgba(255, 251, 243, 0.65), transparent),
+    radial-gradient(ellipse 110% 90% at 50% 50%, transparent 55%, rgba(150, 95, 55, 0.14)),
+    var(--paper);
+  /* crayon: words are masked with grain so the paper shows through in specks */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -5.5 4.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: #2b1512;
+  color: var(--ink);
+  font-family: var(--font-hand);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Made for phones: on a bigger screen it shows as a phone-width column */
+#app {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--paper-bg);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+@media (min-width: 600px) {
+  #app { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55); }
+}
+.defs { position: absolute; width: 0; height: 0; }
+
+.crayon { -webkit-mask-image: var(--grain); mask-image: var(--grain); -webkit-mask-size: 160px; mask-size: 160px; }
+
+/* ---------- the wobbly border ---------- */
+.frame {
+  position: absolute;
+  top: calc(var(--safe-top) + 9px);
+  left: 9px;
+  right: 9px;
+  bottom: calc(var(--safe-bottom) + 9px);
+  z-index: 31; /* above the name gate too */
+  pointer-events: none;
+}
+.frame svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.frame path { fill: none; stroke: var(--red); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- screens ---------- */
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s;
+  overflow: hidden;
+}
+.scene.is-active { opacity: 1; visibility: visible; }
+
+.deco {
+  position: absolute;
+  top: calc(var(--safe-top) + 14px);
+  left: 14px;
+  width: calc(100% - 28px);
+  height: calc(100% - var(--safe-top) - var(--safe-bottom) - 28px);
+  object-fit: fill;
+  pointer-events: none;
+  opacity: 0;
+}
+.play .deco { animation: deco-in 0.9s ease-out both; }
+.deco--soft { opacity: 0.45; }
+.play .deco--soft { animation-name: deco-in-soft; }
+
+/* entrance animations: .anim fades up, .pop bounces in; a1…a6 stagger them */
+.anim { opacity: 0; }
+.play .anim { animation: rise 0.6s ease-out both; }
+.play .anim.pop { animation: pop-in 0.7s var(--pop) both; }
+.a1 { --d: 0.1s; } .a2 { --d: 0.35s; } .a3 { --d: 0.7s; } .a4 { --d: 0.95s; } .a5 { --d: 1.15s; } .a6 { --d: 1.35s; }
+.play .anim, .play .write, .play .draw { animation-delay: var(--d, 0s); }
+
+.write { clip-path: inset(0 100% 0 0); }
+.play .write { animation: write 0.9s ease-out both; animation-delay: var(--d); }
+.draw svg path { stroke-dasharray: 320; stroke-dashoffset: 320; }
+.play .draw svg path { animation: draw 0.8s ease-out both; animation-delay: var(--d); }
+
+/* doodled hearts */
+.doodle {
+  position: absolute;
+  color: var(--red);
+  opacity: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.play .doodle, .gate .doodle { animation: doodle-in 0.6s var(--pop) both, bob 2.6s ease-in-out 1s infinite alternate; }
+
+/* ---------- the couple ---------- */
+.couple {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 14px);
+  width: min(100% - 26px, 50dvh);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.couple__pop { position: relative; width: 100%; height: 100%; opacity: 0; }
+.play .couple__pop { animation: couple-in 0.8s var(--pop) 0.45s both; }
+.couple__media { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 100%; }
+
+/* video screens: the still waits underneath until the video is playing */
+.couple--video .couple__still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 100%; }
+/* the <video> only feeds the canvas (alpha-video.js), which draws the couple with a clear background */
+/* kept on screen (just about invisible) because iPhones pause videos they consider hidden */
+.couple--video .couple__media { position: absolute; inset: 0; opacity: 0.01; pointer-events: none; }
+.couple__canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.2s; }
+.couple--video.is-playing .couple__canvas { opacity: 1; }
+/* the still goes only once the video has fully faded in over it, so there is never a see-through moment */
+.couple--video.is-playing .couple__still { opacity: 0; transition: opacity 0s linear 0.25s; }
+
+/* the intro is cropped at the bottom, so it sits on the bottom edge and fades in (no cut edges on show) */
+.couple--bleed { width: 100%; bottom: 0; }
+.play .couple--bleed .couple__pop { animation: fade-in 0.6s ease-out 0.3s both; }
+
+/* finale video fills the screen */
+.couple--full { inset: 0; left: 0; bottom: 0; width: 100%; height: 100%; aspect-ratio: auto; transform: none; }
+.couple--full .couple__canvas { object-fit: cover; }
+.couple--full .couple__still { inset: auto; left: 50%; bottom: 0; width: max(100%, 56.25dvh); height: auto; aspect-ratio: 1; transform: translateX(-50%); }
+.play .couple--full .couple__pop { animation: none; opacity: 1; }
+.play .deco--fadeout { animation: deco-out 1.6s ease-in 0.2s both; }
+.couple--center { bottom: 8%; }
+
+.play .idle-giggle { animation: giggle 0.55s ease-in-out 1.3s infinite alternate; }
+.play .idle-dance { animation: dance 0.9s ease-in-out 1.3s infinite alternate; }
+.play .idle-bow { animation: bow 1.6s ease-in-out 1.3s infinite; }
+.play .idle-sway { animation: sway 2.2s ease-in-out 1.3s infinite alternate; }
+.play .idle-wave { animation: wave 0.7s ease-in-out 1.3s infinite alternate; }
+
+/* ---------- heart logo ---------- */
+.heart { display: block; margin: 0 auto; overflow: visible; color: var(--red); }
+.heart__fill { fill: var(--paper-light); stroke: none; opacity: 0.85; }
+.heart__line { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.heart--big { width: min(58vw, 230px, 26dvh); }
+.heart--gate { width: min(58vw, 230px); }
+.heart--small { width: 84px; }
+.heart--rsvp { width: 130px; }
+
+/* ---------- top bar: progress + sound ---------- */
+.bars {
+  position: absolute;
+  top: calc(var(--safe-top) + 19px);
+  left: 24px;
+  right: 24px;
+  display: flex;
+  gap: 4px;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.is-auto .bars { opacity: 1; }
+.is-form .sound { opacity: 0; pointer-events: none; }
+.bar { flex: 1; height: 3px; border-radius: 3px; background: var(--red-soft); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--red); transform-origin: 0 50%; transform: scaleX(0); }
+
+.sound {
+  transition: opacity 0.3s;
+  position: absolute;
+  top: calc(var(--safe-top) + 30px);
+  right: 20px;
+  z-index: 25;
+  width: 36px;
+  height: 36px;
+  padding: 7px;
+  border: 2px solid var(--red);
+  border-radius: 50%;
+  background: rgba(251, 243, 230, 0.8);
+  color: var(--red);
+  cursor: pointer;
+}
+.sound svg { width: 100%; height: 100%; display: block; }
+.sound .sound__off, .sound.is-off .sound__on { display: none; }
+.sound.is-off .sound__off { display: block; }
+
+.tap-hint {
+  position: absolute;
+  bottom: calc(var(--safe-bottom) + 18px);
+  right: 22px;
+  margin: 0;
+  z-index: 20;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(251, 243, 230, 0.85);
+  font: 15px var(--font-small);
+  color: var(--red);
+  opacity: 0;
+  pointer-events: none;
+}
+.is-auto .tap-hint { animation: hint 5s ease 2.5s 1 both; }
+
+/* ---------- opening gate ---------- */
+.gate {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--paper-bg);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.gate.is-leaving { opacity: 0; transform: scale(1.08); pointer-events: none; }
+.gate__inner {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: var(--top) 34px calc(var(--safe-bottom) + 30px);
+  text-align: center;
+}
+.gate .heart { animation: heartbeat 1.6s ease-in-out infinite; }
+.gate__kicker { margin: 4px 0 18px; font: 50px/1 var(--font-script); color: var(--red); transform: rotate(-4deg); }
+.gate__form { width: min(100%, 300px); display: flex; flex-direction: column; gap: 12px; }
+.gate__label { font: 700 20px var(--font-hand); color: var(--ink); }
+.gate__hint { margin: 16px 0 0; font: 16px var(--font-small); color: var(--ink); opacity: 0.75; }
+
+input, textarea {
+  width: 100%;
+  border: 2.5px solid var(--red);
+  border-radius: 14px 18px 15px 17px / 17px 14px 18px 15px; /* a little hand-cut */
+  padding: 12px 16px;
+  font: 700 21px var(--font-hand);
+  color: var(--ink);
+  background: var(--paper-light);
+  box-shadow: 0 3px 0 var(--red);
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+input { text-align: center; }
+textarea { resize: none; font-size: 19px; text-align: left; }
+input:focus, textarea:focus { background: #fff; box-shadow: 0 3px 0 var(--red), 0 0 0 4px var(--red-soft); }
+input::placeholder, textarea::placeholder { color: rgba(90, 36, 32, 0.45); font-weight: 400; }
+
+.btn {
+  border: 2.5px solid var(--red);
+  border-radius: 999px;
+  padding: 12px 22px 10px;
+  font: 700 26px var(--font-hand);
+  color: var(--paper-light);
+  background: var(--red);
+  box-shadow: 0 4px 0 #6e1d1a;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #6e1d1a; }
+.btn:disabled { opacity: 0.7; }
+.gate .btn { animation: nudge 2.4s ease-in-out 1.5s infinite; }
+
+/* ---------- intro ---------- */
+.intro__top { position: relative; z-index: 2; padding-top: calc(var(--top) + 6px); text-align: center; }
+.intro__hey { margin: 0 0 4px; font: 28px var(--font-script); color: var(--red); }
+.intro__line { margin: 4px 0 0; font: 38px/1 var(--font-script); color: var(--red); transform: rotate(-3deg); }
+
+/* ---------- save the date (laid out like the inspiration) ---------- */
+.scene--save { display: flex; flex-direction: column; align-items: center; padding: calc(var(--top) + 34px) 26px calc(var(--safe-bottom) + 26px); text-align: center; color: var(--red); }
+.save__title {
+  position: relative;
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  column-gap: 8px;
+  align-items: end;
+  font-weight: 400;
+  line-height: 0.82;
+}
+.save__big { font: 700 clamp(50px, 15vw, 66px)/0.86 var(--font-hand); letter-spacing: 1px; }
+.save__big span { display: inline-block; opacity: 0; }
+.save__big:nth-of-type(1) { grid-column: 2; grid-row: 1; transform: rotate(-3deg); }
+.save__big:nth-of-type(3) { grid-column: 3; grid-row: 1; margin-left: 0.28em; transform: rotate(2deg); }
+.play .save__big span { animation: letter 0.55s var(--pop) both; animation-delay: calc(0.1s + var(--i) * 0.09s); }
+.save__the { grid-column: 2 / span 2; grid-row: 2; justify-self: center; margin: -4px 0 0 -0.3em; font: 42px/1 var(--font-script); opacity: 0; transform: rotate(-6deg); }
+.play .save__the { animation: pop-in 0.6s var(--pop) 0.45s both; }
+.dashes { grid-row: 1; align-self: center; width: 22px; color: var(--red); opacity: 0; }
+.dashes--l { grid-column: 1; margin-right: -0.15em; }
+.dashes--r { grid-column: 4; margin-left: -0.15em; transform: scaleX(-1); }
+.play .dashes { animation: fade-in 0.4s ease-out 0.9s both; }
+
+.save__art { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; margin: 6px 0 4px; display: flex; justify-content: center; }
+.couple--save { position: relative; left: auto; bottom: auto; transform: none; width: auto; height: 100%; max-width: 100%; aspect-ratio: 1; }
+.doodle--save { z-index: 1; }
+
+.save__bottom { display: flex; flex-direction: column; align-items: center; }
+.save__names { margin: 0 0 2px; font: 28px var(--font-script); }
+.save__when { display: flex; align-items: center; gap: 12px; }
+.save__date { margin: 0; font: 700 clamp(44px, 13vw, 58px)/1 var(--font-hand); letter-spacing: 1px; white-space: nowrap; }
+.save__date--two { font-size: clamp(34px, 10.5vw, 46px); }
+.save__date span { font: 400 0.75em var(--font-script); }
+.save__year { margin: 0; font: 700 28px/1 var(--font-hand); letter-spacing: 2px; }
+.doodle--inline { position: static; width: 24px; flex: none; opacity: 1; }
+.play .doodle--inline { animation: bob 2.2s ease-in-out infinite alternate; }
+.save__line { width: min(78%, 260px); margin-top: -2px; }
+.underline { display: block; width: 100%; color: var(--red); }
+.save__count {
+  margin: 8px 0 0;
+  padding: 3px 14px 1px;
+  border: 2px solid var(--red);
+  border-radius: 999px;
+  font: 700 19px var(--font-hand);
+  transform: rotate(-3deg);
+}
+
+/* ---------- event ---------- */
+.event__top { position: relative; z-index: 2; padding: calc(var(--top) + 6px) 50px 0; text-align: center; color: var(--red); }
+/* a soft pool of paper behind the words so the line art never fights the text */
+.event__top::before, .thanks__top::before {
+  content: '';
+  position: absolute;
+  inset: 60px 10px -20px;
+  z-index: -1;
+  background: radial-gradient(closest-side, var(--paper-light) 50%, rgba(251, 243, 230, 0.75) 72%, transparent);
+  pointer-events: none;
+}
+.event__title { margin: 4px 0 0; font: 400 clamp(42px, 13vw, 56px)/1 var(--font-script); transform: rotate(-4deg); }
+.event__sub { margin: 0; font: 22px var(--font-script); color: var(--red); }
+.event__when { margin: 6px 0 0; font: 700 25px var(--font-hand); color: var(--ink); }
+.event__line { width: 190px; margin: -2px auto 2px; color: var(--red); }
+.squiggle { display: block; width: 100%; }
+.event__venue { margin: 0; font: 700 26px/1.1 var(--font-hand); color: var(--red); }
+.event__city { margin: 2px 0 0; font: 16px/1.25 var(--font-small); letter-spacing: 1px; color: var(--ink); }
+.map-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 4px 14px 2px 10px;
+  border-radius: 999px;
+  background: var(--paper-light);
+  border: 2px solid var(--red);
+  color: var(--red);
+  font: 700 17px var(--font-hand);
+  text-decoration: none;
+}
+.map-pill svg { width: 16px; height: 16px; }
+
+/* ---------- finale: the lift, then the camera rushes into their faces ---------- */
+.scene--finale img.couple__media { transform-origin: 50% 35%; }
+.play.scene--finale img.couple__media { animation: finale 2.4s cubic-bezier(0.45, 0, 0.7, 0.7) 0.5s both; }
+
+/* ---------- RSVP ---------- */
+.rsvp__scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: calc(var(--safe-top) + 30px) 28px calc(var(--safe-bottom) + 34px);
+  text-align: center;
+}
+.rsvp__title { margin: 4px 0 14px; font: 700 54px/1 var(--font-hand); letter-spacing: 2px; color: var(--red); }
+.rsvp__now { display: block; font: 32px var(--font-script); letter-spacing: 0; transform: rotate(-4deg); }
+.rsvp__form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+.field { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.field__label { padding: 0; font: 700 20px var(--font-hand); color: var(--red); }
+.field__label em { font-weight: 400; font-style: normal; color: var(--ink); opacity: 0.7; }
+.field__error { font: 16px var(--font-small); color: #c0392b; }
+.field__error:empty { display: none; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cards--one { grid-template-columns: minmax(0, 220px); justify-content: center; }
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 8px 10px;
+  border: 2.5px dashed rgba(168, 50, 45, 0.45);
+  border-radius: 16px;
+  background: rgba(251, 243, 230, 0.7);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.2s var(--pop), border-color 0.2s, background 0.2s;
+}
+.card:active { transform: scale(0.96); }
+.card[aria-pressed='true'] { border: 2.5px solid var(--red); background: var(--paper-light); transform: rotate(-1.5deg); box-shadow: 0 3px 0 var(--red); }
+.card:nth-child(even)[aria-pressed='true'] { transform: rotate(1.5deg); }
+.card__art { width: 100%; aspect-ratio: 1; overflow: hidden; }
+.card__art img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08) translateY(3%); }
+.card__label { margin-top: 4px; font: 700 19px/1.05 var(--font-hand); color: var(--red); }
+.card__date { font: 14px/1.2 var(--font-small); }
+.card__tick {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--red);
+  color: var(--paper-light);
+  border: 2.5px solid var(--paper-light);
+  font: 700 16px sans-serif;
+  transform: scale(0);
+  transition: transform 0.3s var(--pop);
+}
+.card[aria-pressed='true'] .card__tick { transform: scale(1); }
+
+.btn--send { margin-top: 4px; width: 100%; }
+.rsvp__status { margin: 0; text-align: center; font: 17px var(--font-small); color: #c0392b; }
+.rsvp__status:empty { display: none; }
+.link-btn {
+  margin-top: 18px;
+  border: 0;
+  background: none;
+  color: var(--red);
+  font: 18px var(--font-small);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+/* ---------- thanks ---------- */
+.thanks__top { position: relative; z-index: 2; padding: calc(var(--top) + 6px) 44px 0; text-align: center; color: var(--red); }
+.thanks__title { margin: 6px 0 4px; font: 400 50px/1 var(--font-script); transform: rotate(-3deg); }
+.thanks__line { margin: 6px 0 0; font: 700 22px/1.15 var(--font-hand); color: var(--ink); }
+.thanks__see { margin: 8px 0 0; font: 700 26px var(--font-hand); }
+.scene--thanks .link-btn { margin-top: 6px; }
+
+/* ---------- keyframes ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(14px) rotate(var(--r, 0deg)); } to { opacity: 1; transform: rotate(var(--r, 0deg)); } }
+@keyframes pop-in { 0% { opacity: 0; transform: scale(0.4) rotate(-8deg); } 100% { opacity: 1; transform: scale(1) rotate(var(--r, 0deg)); } }
+.event__title, .gate__kicker { --r: -4deg; }
+.intro__line, .save__count, .thanks__title { --r: -3deg; }
+.save__the { --r: -6deg; }
+@keyframes write { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(-20% -10% -20% 0); } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes letter { 0% { opacity: 0; transform: translateY(40px) scale(0.5) rotate(-12deg); } 100% { opacity: 1; transform: none; } }
+@keyframes deco-in { from { opacity: 0; transform: scale(1.04); } to { opacity: 0.8; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes deco-out { from { opacity: 0.8; transform: none; } to { opacity: 0; transform: scale(1.15); } }
+@keyframes deco-in-soft { from { opacity: 0; } to { opacity: 0.45; } }
+@keyframes couple-in { 0% { opacity: 0; transform: translateY(35%) scale(0.85); } 100% { opacity: 1; transform: none; } }
+@keyframes doodle-in { 0% { opacity: 0; transform: scale(0.3) rotate(var(--r, 0deg)); } 100% { opacity: 0.9; transform: scale(1) rotate(var(--r, 0deg)); } }
+@keyframes bob { from { translate: 0 0; } to { translate: 0 -4px; } }
+@keyframes giggle { from { transform: translateY(0) rotate(-0.8deg); } to { transform: translateY(-1.6%) rotate(0.8deg); } }
+@keyframes dance { from { transform: translateY(0) rotate(-2.5deg); } to { transform: translateY(-3.5%) rotate(2.5deg); } }
+@keyframes bow { 0%, 100% { transform: none; } 45%, 60% { transform: translateY(1.5%) scaleY(0.975); } }
+@keyframes sway { from { transform: rotate(-2.2deg); } to { transform: rotate(2.2deg); } }
+@keyframes wave { from { transform: translateY(0) rotate(-1.2deg); } to { transform: translateY(-2.2%) rotate(1.2deg); } }
+@keyframes finale { 0% { transform: scale(1) rotate(0); } 100% { transform: scale(3.3) rotate(-6deg); } }
+@keyframes heartbeat { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.07); } 28% { transform: scale(1); } 42% { transform: scale(1.05); } }
+@keyframes nudge { 0%, 70%, 100% { transform: none; } 78% { transform: rotate(-3deg) scale(1.04); } 86% { transform: rotate(3deg) scale(1.04); } 94% { transform: rotate(-1deg); } }
+@keyframes hint { 0% { opacity: 0; } 15%, 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* press and hold pauses the story, including the motion on screen */
+.is-held .scene *, .is-held .scene { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .play .anim, .play .write, .play .draw svg path, .play .couple__pop, .play .deco, .play .save__big span, .play .save__the, .play .dashes, .play .doodle, .gate .doodle { animation-duration: 0.01s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
+  [class*='idle-'], .gate .heart, .gate .btn, .play.scene--finale img.couple__media, .play .doodle--inline { animation: none !important; }
+}

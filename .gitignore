@@ -1,0 +1,11 @@
+.DS_Store
+.venv/
+__pycache__/
+
+# Source media stays local: Vercel only needs site/.
+# (raw green-screen assets, reference photos, the inspiration, personal photos)
+/assets/
+/inspiration.tiff
+/character*.*
+/*.mp3
+site/_preview.html
