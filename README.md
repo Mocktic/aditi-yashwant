@@ -47,8 +47,10 @@ the guest sees. Change the lists under `invites` in `site/config.js`.
 Everything editable is in **`site/config.js`**: names, events (date, time, venue, map link), which
 couple clip(s) each event plays, the guest lists, and how long each screen stays.
 
-All events are at Bhairav Vatika, Aashram ke peeche, Barisadri. The map link is a search for now
-(marked `PLACEHOLDER`); paste the exact Google Maps pin in `venue.map` at the top of the file.
+Ganpati Sthapna and Grah Shanti are at **Home, Badi Sadri** (`home` at the top of the file; no map
+link, so no Directions button). The other events are at Bhairav Vatika, Aashram ke peeche, Barisadri
+(`venue`); its map link is a search for now (marked `PLACEHOLDER`), so paste the exact Google Maps pin
+in `venue.map`.
 
 ### Which clip plays where
 
@@ -56,7 +58,7 @@ All events are at Bhairav Vatika, Aashram ke peeche, Barisadri. The map link is 
 |---|---|---|
 | Intro | `intro` | none |
 | Save the Date | still picture, per link (`saveArt`) | none |
-| Ganpati Sthapna | `haldi` | marigolds and kalash |
+| Ganpati Sthapna | `ganpati` (new, see below); `haldi` until it exists | marigolds and kalash |
 | Grah Shanti | `grahshanti` (new, see below); `haldi` until it exists | mandap and havan |
 | Sagai | `engagement` | balloons and hearts |
 | Sangeet Sandhya & Preetibhoj | `reception` once, then the full-screen `finale` lift-and-spin | curtains and dinner tables |
@@ -66,14 +68,14 @@ All events are at Bhairav Vatika, Aashram ke peeche, Barisadri. The map link is 
 Where an event lists two clips, the first plays once and then the second plays. The screen stays up
 until both have finished, so neither gets cut off.
 
-## The Grah Shanti clip
+## The Ganpati Sthapna and Grah Shanti clips
 
-It's the only new artwork. The prompts are in **`ASSET-PROMPTS.md`**. Save the still and the video
+They're the only new artwork. The prompts are in **`ASSET-PROMPTS.md`**. Save each still and video
 where it says, then run the asset script for that scene:
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install pillow numpy scipy   # first time only
-.venv/bin/python tools/prepare_assets.py grahshanti
+.venv/bin/python tools/prepare_assets.py ganpati      # or grahshanti, or both
 ```
 
 ## Media and the asset script
@@ -101,7 +103,9 @@ They go to a **new Google Sheet for the bride's side**, kept apart from the groo
 2. **Extensions → Apps Script**, replace the code with `tools/rsvp-apps-script.gs`, **Save**.
 3. **Deploy → New deployment → Web app**. Execute as **Me**, Who has access **Anyone**. Deploy and
    allow access.
-4. Copy the web app URL (ends in `/exec`) into `rsvp.endpoint` in `site/config.js`.
+4. Copy the web app URL (ends in `/exec`). Opening it in a browser should say "RSVP sheet is
+   connected". Paste it into `rsvp.endpoint` in `site/config.js`, send yourself a test RSVP, and
+   check the row appears (delete it afterwards).
 
 Until step 4 is done, RSVPs are only kept in the guest's own browser, so do it before sharing.
 

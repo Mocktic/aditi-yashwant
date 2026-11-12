@@ -1,5 +1,12 @@
 // All invitation content lives here. Edit this file to change names, events, venues or links.
 
+// Ganpati Sthapna and Grah Shanti are at home (no map pin, so no Directions button; add
+// `map: '<Google Maps link>'` here to show one)
+const home = {
+  venue: 'Home',
+  city: 'Badi Sadri, Rajasthan',
+};
+
 const venue = {
   venue: 'Bhairav Vatika',
   city: 'Aashram ke peeche, Barisadri, Rajasthan',
@@ -15,7 +22,7 @@ export default {
   // title is the full name stored in the RSVP sheet; label (+ optional sub) is what shows on screen.
   // art: the couple clip(s) in media/couple/. Two clips play one after the other (the first once,
   //   then the second), and the screen stays up until both have played.
-  // fallback: the clip to show until `art` exists (Grah Shanti, see ASSET-PROMPTS.md).
+  // fallback: the clip to show until `art` exists (Ganpati Sthapna, Grah Shanti: see ASSET-PROMPTS.md).
   // finale: after this screen, the full-screen lift-and-spin plays.
   // deco: the red line-art frame in media/deco/.
   events: {
@@ -24,8 +31,9 @@ export default {
       label: 'Ganpati Sthapna',
       date: '2026-11-30',
       start: '15:00',
-      ...venue,
-      art: ['haldi'],
+      ...home,
+      art: ['ganpati'],
+      fallback: ['haldi'],
       deco: 'haldi',
     },
     grahshanti: {
@@ -33,7 +41,7 @@ export default {
       label: 'Grah Shanti',
       date: '2026-12-01',
       start: '08:00',
-      ...venue,
+      ...home,
       art: ['grahshanti'],
       fallback: ['haldi'],
       deco: 'wedding',
@@ -89,6 +97,6 @@ export default {
   // The bride's side Google Sheet (Apps Script web app, see README → RSVPs).
   // Empty: RSVPs are only kept in the guest's browser, so fill this in before sharing the link.
   rsvp: {
-    endpoint: '',
+    endpoint: 'https://script.google.com/macros/s/AKfycbwzlt3nxoJWvEO6Jhn6OSkNW_z8m-eF6pMCI4QgtX079Q541gfud1Qwo_J8uSDt4p4XZQ/exec',
   },
 };

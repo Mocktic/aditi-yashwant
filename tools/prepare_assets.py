@@ -31,9 +31,18 @@ from scipy import ndimage
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / 'assets'
 OUT = ROOT / 'site' / 'media'
-SCENES = ['intro', 'haldi', 'grahshanti', 'engagement', 'baraat', 'wedding', 'reception', 'finale', 'afterparty', 'thanks']
+SCENES = ['intro', 'haldi', 'ganpati', 'grahshanti', 'engagement', 'baraat', 'wedding', 'reception', 'finale', 'afterparty', 'thanks']
 STILL_SIZE = 900
 VIDEO_SIZE = 720
+# Empty space added above a scene (pixels of a 720 px frame) when its art runs off the top edge:
+# in `intro` Yashwant's hair touches the top of the frame, so without room the sticker edge (and
+# the tips of his hair) get sliced flat. The page knows the taller shape (styles.css .couple--bleed).
+PAD_TOP = {'intro': 48}
+# Portrait (9:16) scenes normally keep the bottom 720x720 square, where the couple stands. A scene
+# drawn taller keeps more rows from the bottom instead (pixels of a 720x1280 frame): in `ganpati`
+# the heads reach above the square (and petals fall from the top), so it keeps 720x880.
+TALL = {'ganpati': 880}
+GREEN = np.array((0, 255, 0), np.uint8)
 WATERMARK_ALPHA = ROOT / 'tools' / 'gemini-watermark-alpha.png'
 WATERMARK_AT = (560, 1120)
 
@@ -106,8 +115,9 @@ def sticker(rgb, alpha, scale=1.0):
 
 
 def still(scene):
-    """The square still from assets/video-input/, or else the bottom square of the 9:16 still in
-    assets/video-input-9x16/ (the couple stands in the bottom of the portrait frame)."""
+    """The square still from assets/video-input/, or else the bottom of the 9:16 still in
+    assets/video-input-9x16/ (the couple stands in the bottom of the portrait frame): a square, or
+    the taller strip set in TALL, matching what video() keeps."""
     src = SRC / 'video-input' / f'{scene}.png'
     tall = SRC / 'video-input-9x16' / f'{scene}.png'
     if src.exists():
@@ -115,14 +125,23 @@ def still(scene):
     elif tall.exists():
         im = Image.open(tall).convert('RGB')
         w, h = im.size
-        im = im.crop((0, max(h - w, 0), w, h))
+        keep = round(w * TALL.get(scene, VIDEO_SIZE) / VIDEO_SIZE)
+        im = im.crop((0, max(h - keep, 0), w, h))
     else:
         return False
-    im = im.resize((STILL_SIZE, STILL_SIZE), Image.LANCZOS)
-    rgb, alpha = sticker(*key(np.asarray(im)), scale=STILL_SIZE / VIDEO_SIZE)
+    im = im.resize((STILL_SIZE, round(STILL_SIZE * im.height / im.width)), Image.LANCZOS)
+    scale = STILL_SIZE / VIDEO_SIZE
+    rgb, alpha = sticker(*key(pad_top(np.asarray(im), round(PAD_TOP.get(scene, 0) * scale))), scale=scale)
     rgba = np.dstack([rgb, (alpha * 255).round().astype(np.uint8)])
     Image.fromarray(rgba, 'RGBA').save(OUT / 'couple' / f'{scene}.webp', quality=88, method=6)
     return True
+
+
+def pad_top(rgb, rows):
+    """Add `rows` of screen green above the picture (keyed away like the rest of the background)."""
+    if not rows:
+        return rgb
+    return np.concatenate([np.broadcast_to(GREEN, (rows, rgb.shape[1], 3)), rgb], axis=0)
 
 
 def remove_watermark(frame, alpha):
@@ -153,13 +172,14 @@ def video(scene):
     if portrait and (w, h) != (720, 1280):
         raise SystemExit(f'{src.name}: expected a 720x1280 Gemini video, got {w}x{h}')
     fullscreen = portrait and scene == 'finale'
-    out_w, out_h = (720, 1280) if fullscreen else (VIDEO_SIZE, VIDEO_SIZE)
+    out_w, out_h = (720, 1280) if fullscreen else (VIDEO_SIZE, TALL.get(scene, VIDEO_SIZE) if portrait else VIDEO_SIZE)
+    enc_h = out_h + PAD_TOP.get(scene, 0)
     alpha = np.asarray(Image.open(WATERMARK_ALPHA), np.float32) / 255 if portrait else None
     dec = subprocess.Popen(
         ['ffmpeg', '-v', 'error', '-i', str(src), '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'],
         stdout=subprocess.PIPE)
     enc = subprocess.Popen(
-        ['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{out_w * 2}x{out_h}', '-r', '24', '-i', '-',
+        ['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{out_w * 2}x{enc_h}', '-r', '24', '-i', '-',
          '-vf', 'scale=out_color_matrix=bt709:out_range=tv', '-c:v', 'libx264', '-preset', 'slow', '-crf', '24',
          '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709',
          '-movflags', '+faststart', '-an', str(OUT / 'couple' / f'{scene}.mp4')],
@@ -172,10 +192,10 @@ def video(scene):
         if portrait:
             remove_watermark(frame, alpha)
             if not fullscreen:
-                frame = frame[h - w:]  # the couple's square sits at the bottom of the 9:16 frame
+                frame = frame[h - TALL.get(scene, w):]  # the couple stands at the bottom of the 9:16 frame
         if frame.shape[:2] != (out_h, out_w):
             frame = np.asarray(Image.fromarray(frame).resize((out_w, out_h), Image.LANCZOS))
-        rgb, matte = sticker(*key(frame))
+        rgb, matte = sticker(*key(pad_top(frame, PAD_TOP.get(scene, 0))))
         alpha_half = np.repeat((matte * 255).round().astype(np.uint8)[..., None], 3, axis=2)
         enc.stdin.write(np.concatenate([rgb, alpha_half], axis=1).tobytes())
     enc.stdin.close()
@@ -219,7 +239,7 @@ def main():
     (OUT / 'deco').mkdir(parents=True, exist_ok=True)
     path = OUT / 'manifest.json'
     manifest = json.loads(path.read_text()) if path.exists() else {}
-    manifest = {'stills': manifest.get('stills', []), 'videos': manifest.get('videos', []), 'durations': manifest.get('durations', {})}
+    manifest = {'stills': manifest.get('stills', []), 'videos': manifest.get('videos', []), 'durations': manifest.get('durations', {}), 'ratios': {}, 'edges': []}
     for scene in only or SCENES:
         for kind in ('stills', 'videos'):
             if scene in manifest[kind]:
@@ -236,6 +256,19 @@ def main():
     if not only:
         decos()
         music()
+    # each picture's width / height, so the page sizes the couple's box to match (most are 1)
+    # and which ones run right up to the side edges (the RSVP cards show those whole instead of
+    # zooming in a little, so nobody gets an arm or a saree trimmed off)
+    manifest['ratios'] = {}
+    manifest['edges'] = []
+    for scene in manifest['stills']:
+        im = Image.open(OUT / 'couple' / f'{scene}.webp')
+        w, h = im.size
+        manifest['ratios'][scene] = round(w / h, 4)
+        cols = np.asarray(im)[..., 3].max(axis=0) > 128
+        margin = round(w * 0.05)
+        if cols[:margin].any() or cols[-margin:].any():
+            manifest['edges'].append(scene)
     order = {s: i for i, s in enumerate(SCENES)}
     for kind in ('stills', 'videos'):
         manifest[kind].sort(key=order.get)

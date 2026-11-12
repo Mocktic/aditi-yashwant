@@ -1,11 +1,10 @@
-// Google Apps Script for the wedding invite RSVPs.
+// Google Apps Script for the RSVPs of "Aditi weds Yashwant" (bride's side invite).
 // Paste into your Google Sheet: Extensions → Apps Script, then Deploy → Web app
 // (Execute as: Me · Who has access: Anyone). See README → "RSVPs".
 //
 // Creates two tabs on the first RSVP — leave the sheet empty, don't type headers yourself:
 //   RSVPs   — one row per guest: Submitted at · Name · Events attending · Message · Invite link · Phone
-//             (Phone was added last so rows from before it stay lined up; an existing sheet
-//              gets the new header cell on the next RSVP)
+//             (Invite link is which link the guest opened: all, puja, sangeet or wedding)
 //   Summary — every event with a live count of guests attending it
 // The script only ever adds rows; it never sends sheet data back to anyone.
 
@@ -14,6 +13,11 @@ const SUMMARY_SHEET = 'Summary';
 const HEADERS = ['Submitted at', 'Name', 'Events attending', 'Message', 'Invite link', 'Phone'];
 const SEPARATOR = ' | '; // event names contain commas, so they are joined with a bar
 const MAX_PER_MINUTE = 30; // a crude brake on junk submissions
+
+// Opening the web app address in a browser shows this, so you can check the deployment works.
+function doGet() {
+  return ContentService.createTextOutput('RSVP sheet is connected. Paste this address into site/config.js (rsvp.endpoint).');
+}
 
 function doPost(e) {
   const lock = LockService.getScriptLock();

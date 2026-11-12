@@ -2,6 +2,7 @@
   "stills": [
     "intro",
     "haldi",
+    "ganpati",
     "grahshanti",
     "engagement",
     "baraat",
@@ -14,6 +15,7 @@
   "videos": [
     "intro",
     "haldi",
+    "ganpati",
     "grahshanti",
     "engagement",
     "baraat",
@@ -24,7 +26,6 @@
     "thanks"
   ],
   "durations": {
-    "intro": 5.04,
     "haldi": 3.04,
     "engagement": 3.04,
     "baraat": 4.0,
@@ -33,6 +34,26 @@
     "finale": 4.0,
     "afterparty": 4.0,
     "thanks": 4.0,
-    "grahshanti": 5.0
-  }
+    "grahshanti": 5.0,
+    "intro": 5.04,
+    "ganpati": 5.0
+  },
+  "ratios": {
+    "intro": 0.9375,
+    "haldi": 1.0,
+    "grahshanti": 1.0,
+    "engagement": 1.0,
+    "baraat": 1.0,
+    "wedding": 1.0,
+    "reception": 1.0,
+    "finale": 1.0,
+    "afterparty": 1.0,
+    "thanks": 1.0,
+    "ganpati": 0.8182
+  },
+  "edges": [
+    "intro",
+    "grahshanti",
+    "ganpati"
+  ]
 }

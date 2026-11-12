@@ -14,8 +14,13 @@ const manifest = await fetch('media/manifest.json').then((r) => r.json()).catch(
 const stills = manifest.stills || [];
 const videos = manifest.videos || [];
 const durations = manifest.durations || {};
+// width / height of each couple picture: 1 for most; the intro and Ganpati Sthapna are taller
+const ratios = manifest.ratios || {};
+// pictures that reach the side edges (Grah Shanti): RSVP cards show these whole, without zooming in
+const edges = manifest.edges || [];
+const showWhole = (art) => (ratios[art] || 1) < 0.99 || edges.includes(art);
 
-// a scene waiting to be made (Grah Shanti) shows its fallback until its picture exists
+// a scene waiting to be made (Ganpati Sthapna, Grah Shanti) shows its fallback until its picture exists
 const artFor = (e) => (e.fallback && !e.art.every((a) => stills.includes(a)) ? e.fallback : e.art);
 const events = invite.events.map((id) => { const e = { id, ...config.events[id] }; return { ...e, art: artFor(e) }; });
 const saveDates = [...new Set(invite.save.map((id) => config.events[id].date))].sort();
@@ -75,7 +80,7 @@ function doodles(n = 4, top = 8, bottom = 60) {
 // The couple: the video where there is one (see tools/prepare_assets.py), otherwise the still
 // with a little idle wiggle so the screen never feels frozen. Every picture already carries the
 // cream + red "sticker" edge.
-const IDLE = { intro: 'giggle', haldi: 'giggle', grahshanti: 'bow', engagement: 'giggle', baraat: 'dance', wedding: 'bow', reception: 'sway', afterparty: 'dance', thanks: 'wave', finale: 'none' };
+const IDLE = { intro: 'giggle', haldi: 'giggle', ganpati: 'bow', grahshanti: 'bow', engagement: 'giggle', baraat: 'dance', wedding: 'bow', reception: 'sway', afterparty: 'dance', thanks: 'wave', finale: 'none' };
 // With a video, the still stays underneath until the video is actually playing, so a slow
 // connection shows the picture instead of an empty screen.
 const alphaVideo = createAlphaVideo();
@@ -92,7 +97,7 @@ function couple(arts, cls = '', { loop = true, still = false } = {}) {
   const clips = video
     ? arts.map((a, i) => `<video class="couple__media" src="media/couple/${a}.mp4" muted playsinline ${loop && i === arts.length - 1 ? 'loop' : ''} preload="${a === 'intro' ? 'auto' : 'none'}"></video>`).join('')
     : '';
-  return `<div class="couple ${clips ? 'couple--video' : ''} ${cls}"><div class="couple__pop">${img}${clips}</div></div>`;
+  return `<div class="couple ${clips ? 'couple--video' : ''} ${cls}" style="--ar:${ratios[first] || 1}"><div class="couple__pop">${img}${clips}</div></div>`;
 }
 // how long a run of clips takes to play once (ms); 0 when they won't play as video
 const clipsTime = (arts) => (playsVideo(arts) ? arts.reduce((t, a) => t + (durations[a] || 0), 0) * 1000 : 0);
@@ -201,7 +206,7 @@ function finaleScreen(deco) {
 function rsvpScreen() {
   const cards = events.map((e) => `
     <button type="button" class="card" data-title="${esc(e.title)}" aria-pressed="${events.length === 1}">
-      <span class="card__art"><img src="media/couple/${e.art[e.art.length - 1]}.webp" alt=""></span>
+      <span class="card__art"><img ${showWhole(e.art[e.art.length - 1]) ? 'class="card__img--whole" ' : ''}src="media/couple/${e.art[e.art.length - 1]}.webp" alt=""></span>
       <span class="card__label">${esc(e.label)}</span>
       <span class="card__date">${DAYS[toDate(e.date).getDay()]}, ${shortDate(e.date)} &middot; ${fmtTime(e.start)}</span>
       <span class="card__tick" aria-hidden="true">&#10003;</span>
