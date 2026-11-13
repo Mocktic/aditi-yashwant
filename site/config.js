@@ -74,15 +74,15 @@ export default {
     },
   },
 
-  // The date on the "Save the Date" screen, on every link (a link can override it with its own saveDate).
+  // The date on the "Save the Date" screen: each link's own saveDate, or this one if a link has none.
   saveDate: '2026-12-01',
 
   // One link per guest list: https://<site>/?invite=<name>. No ?invite= means `defaultInvite`.
   invites: {
-    all: { events: ['ganpati', 'grahshanti', 'sagai', 'sangeet', 'lagan'] },
-    puja: { events: ['ganpati', 'grahshanti'] },
-    sangeet: { events: ['sagai', 'sangeet'] },
-    wedding: { events: ['lagan'] },
+    all: { events: ['ganpati', 'grahshanti', 'sagai', 'sangeet', 'lagan'], saveDate: '2026-12-01' },
+    puja: { events: ['ganpati', 'grahshanti'], saveDate: '2026-11-30' },
+    sangeet: { events: ['sagai', 'sangeet'], saveDate: '2026-12-01' },
+    wedding: { events: ['lagan'], saveDate: '2026-12-02' },
   },
   defaultInvite: 'all',
 

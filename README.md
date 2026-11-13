@@ -35,13 +35,12 @@ It combines with `&invite=…`.
 | Guests | Link | Events | Save the Date |
 |---|---|---|---|
 | Everyone (all the days) | `/` or `/?invite=all` | Ganpati Sthapna, Grah Shanti, Sagai, Sangeet Sandhya & Preetibhoj, Lagan Phere | 01.12.2026 |
-| Puja | `/?invite=puja` | Ganpati Sthapna, Grah Shanti | 01.12.2026 |
+| Puja | `/?invite=puja` | Ganpati Sthapna, Grah Shanti | 30.11.2026 |
 | Sagai + Sangeet | `/?invite=sangeet` | Sagai, Sangeet Sandhya & Preetibhoj | 01.12.2026 |
-| Wedding | `/?invite=wedding` | Lagan Phere | 01.12.2026 |
+| Wedding | `/?invite=wedding` | Lagan Phere | 02.12.2026 |
 
-The link decides which event screens and RSVP cards the guest sees. The Save
-the Date is 01.12.2026 on every link (`saveDate` in `site/config.js`; a link can have its own
-`saveDate`). Change the lists under `invites` in `site/config.js`.
+The link decides which event screens and RSVP cards the guest sees. Each link
+has its own Save the Date date (`saveDate` on each link in `site/config.js`). Change the lists under `invites` in `site/config.js`.
 
 ## Changing content
 
