@@ -1,24 +1,18 @@
 // All invitation content lives here. Edit this file to change names, events, venues or links.
 
-// Ganpati Sthapna and Grah Shanti are at home (no map pin, so no Directions button; add
-// `map: '<Google Maps link>'` here to show one)
-const home = {
-  venue: 'Home',
-  city: 'Badi Sadri, Rajasthan',
-};
-
+// every event is at Bhairav Vatika
 const venue = {
   venue: 'Bhairav Vatika',
   city: 'Aashram ke peeche, Barisadri, Rajasthan',
-  // PLACEHOLDER: a search link. Swap in the exact Google Maps pin when you have it.
-  map: 'https://maps.google.com/?q=Bhairav+Vatika,+Badi+Sadri,+Rajasthan',
+  map: 'https://maps.app.goo.gl/hFtgCET7Brw7Jw9c6',
 };
 
 export default {
   // bride's side: Aditi first
   couple: ['Aditi', 'Yashwant'],
 
-  // date: YYYY-MM-DD · start: 24-hour HH:MM (IST)
+  // date: YYYY-MM-DD · start: 24-hour HH:MM (IST) · onwards: show "5pm onwards" instead of "5pm"
+  // detail: an optional small line under the date and time
   // title is the full name stored in the RSVP sheet; label (+ optional sub) is what shows on screen.
   // art: the couple clip(s) in media/couple/. Two clips play one after the other (the first once,
   //   then the second), and the screen stays up until both have played.
@@ -31,7 +25,7 @@ export default {
       label: 'Ganpati Sthapna',
       date: '2026-11-30',
       start: '15:00',
-      ...home,
+      ...venue,
       art: ['ganpati'],
       fallback: ['haldi'],
       deco: 'haldi',
@@ -41,7 +35,7 @@ export default {
       label: 'Grah Shanti',
       date: '2026-12-01',
       start: '08:00',
-      ...home,
+      ...venue,
       art: ['grahshanti'],
       fallback: ['haldi'],
       deco: 'wedding',
@@ -58,10 +52,11 @@ export default {
     },
     sangeet: {
       title: 'Sangeet Sandhya & Preetibhoj',
-      label: 'Sangeet Sandhya',
-      sub: '& Preetibhoj',
+      label: 'Preetibhoj',
+      sub: '& Sangeet Sandhya',
       date: '2026-12-01',
-      start: '20:00',
+      start: '17:00',
+      onwards: true,
       ...venue,
       art: ['reception'],
       finale: true,
@@ -79,14 +74,15 @@ export default {
     },
   },
 
+  // The date on the "Save the Date" screen, on every link (a link can override it with its own saveDate).
+  saveDate: '2026-12-01',
+
   // One link per guest list: https://<site>/?invite=<name>. No ?invite= means `defaultInvite`.
-  // save: the event(s) whose date goes on the "Save the Date" screen.
-  // saveArt: the couple picture on the "Save the Date" screen.
   invites: {
-    all: { events: ['ganpati', 'grahshanti', 'sagai', 'sangeet', 'lagan'], save: ['lagan'], saveArt: 'wedding' },
-    puja: { events: ['ganpati', 'grahshanti'], save: ['ganpati', 'grahshanti'], saveArt: 'haldi' },
-    sangeet: { events: ['sagai', 'sangeet'], save: ['sagai'], saveArt: 'engagement' },
-    wedding: { events: ['lagan'], save: ['lagan'], saveArt: 'wedding' },
+    all: { events: ['ganpati', 'grahshanti', 'sagai', 'sangeet', 'lagan'] },
+    puja: { events: ['ganpati', 'grahshanti'] },
+    sangeet: { events: ['sagai', 'sangeet'] },
+    wedding: { events: ['lagan'] },
   },
   defaultInvite: 'all',
 

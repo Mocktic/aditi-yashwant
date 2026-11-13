@@ -34,30 +34,30 @@ It combines with `&invite=…`.
 
 | Guests | Link | Events | Save the Date |
 |---|---|---|---|
-| Everyone (all the days) | `/` or `/?invite=all` | Ganpati Sthapna, Grah Shanti, Sagai, Sangeet Sandhya & Preetibhoj, Lagan Phere | 02.12.2026 |
-| Puja | `/?invite=puja` | Ganpati Sthapna, Grah Shanti | 30.11 & 01.12 |
+| Everyone (all the days) | `/` or `/?invite=all` | Ganpati Sthapna, Grah Shanti, Sagai, Sangeet Sandhya & Preetibhoj, Lagan Phere | 01.12.2026 |
+| Puja | `/?invite=puja` | Ganpati Sthapna, Grah Shanti | 01.12.2026 |
 | Sagai + Sangeet | `/?invite=sangeet` | Sagai, Sangeet Sandhya & Preetibhoj | 01.12.2026 |
-| Wedding | `/?invite=wedding` | Lagan Phere | 02.12.2026 |
+| Wedding | `/?invite=wedding` | Lagan Phere | 01.12.2026 |
 
-The link decides which event screens, Save the Date date(s), Save the Date picture and RSVP cards
-the guest sees. Change the lists under `invites` in `site/config.js`.
+The link decides which event screens and RSVP cards the guest sees. The Save
+the Date is 01.12.2026 on every link (`saveDate` in `site/config.js`; a link can have its own
+`saveDate`). Change the lists under `invites` in `site/config.js`.
 
 ## Changing content
 
 Everything editable is in **`site/config.js`**: names, events (date, time, venue, map link), which
 couple clip(s) each event plays, the guest lists, and how long each screen stays.
 
-Ganpati Sthapna and Grah Shanti are at **Home, Badi Sadri** (`home` at the top of the file; no map
-link, so no Directions button). The other events are at Bhairav Vatika, Aashram ke peeche, Barisadri
-(`venue`); its map link is a search for now (marked `PLACEHOLDER`), so paste the exact Google Maps pin
-in `venue.map`.
+Every event is at **Bhairav Vatika**, Aashram ke peeche, Barisadri (`venue` at the top of the file,
+with its Google Maps pin). Sangeet Sandhya & Preetibhoj shows "5pm" with a small line under it,
+"Preetibhoj 5pm onwards · Sangeet 8pm" (`start`, `onwards` and `detail` on that event).
 
 ### Which clip plays where
 
 | Screen | Clip(s) | Line art |
 |---|---|---|
 | Intro | `intro` | none |
-| Save the Date | still picture, per link (`saveArt`) | none |
+| Save the Date | none (a postage-stamp card, same layout as the groom's side) | none |
 | Ganpati Sthapna | `ganpati` (new, see below); `haldi` until it exists | marigolds and kalash |
 | Grah Shanti | `grahshanti` (new, see below); `haldi` until it exists | mandap and havan |
 | Sagai | `engagement` | balloons and hearts |

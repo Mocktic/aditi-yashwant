@@ -23,7 +23,7 @@ const showWhole = (art) => (ratios[art] || 1) < 0.99 || edges.includes(art);
 // a scene waiting to be made (Ganpati Sthapna, Grah Shanti) shows its fallback until its picture exists
 const artFor = (e) => (e.fallback && !e.art.every((a) => stills.includes(a)) ? e.fallback : e.art);
 const events = invite.events.map((id) => { const e = { id, ...config.events[id] }; return { ...e, art: artFor(e) }; });
-const saveDates = [...new Set(invite.save.map((id) => config.events[id].date))].sort();
+const saveDates = [].concat(invite.saveDate || config.saveDate).sort();
 
 const [nameA, nameB] = config.couple;
 let guest = load('guest-name') || '';
@@ -35,12 +35,12 @@ const toDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return n
 const ordinal = (n) => n + (n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th');
 const shortDate = (iso) => { const d = toDate(iso); return `${ordinal(d.getDate())} ${MONTHS[d.getMonth()].slice(0, 3)}`; };
 const pad = (n) => String(n).padStart(2, '0');
-const dots = (d) => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}`; // 02.12, like the inspiration
 function fmtTime(hm) {
   const [h, m] = hm.split(':').map(Number);
   if (h === 0 && m === 0) return 'midnight';
   return `${h % 12 || 12}${m ? ':' + String(m).padStart(2, '0') : ''}${h < 12 ? 'am' : 'pm'}`;
 }
+const when = (e) => fmtTime(e.start) + (e.onwards ? ' onwards' : '');
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const firstName = () => esc(guest.trim().split(/\s+/)[0] || '');
 
@@ -59,8 +59,6 @@ function heart(cls = '') {
 const squiggle = `<svg class="squiggle" viewBox="0 0 240 14" aria-hidden="true"><path d="M3 8 C 30 2, 50 13, 80 7 S 130 2, 160 8 S 210 12, 237 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`;
 const underline = `<svg class="underline" viewBox="0 0 300 16" aria-hidden="true"><path d="M8 10 C 70 4, 150 3, 292 8" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/></svg>`;
 const pin = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z" fill="currentColor"/><circle cx="12" cy="10" r="2.6" fill="var(--paper)"/></svg>`;
-// the little "≡" dashes either side of SAVE the DATE
-const dashes = (side) => `<svg class="dashes dashes--${side}" viewBox="0 0 40 44" aria-hidden="true"><path d="M4 8 L 30 14 M2 22 L 36 22 M4 36 L 30 30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
 const HEART_PATH = 'M12 21 C 5 15.5, 1.5 11.5, 2.2 7.2 C 2.9 3.6, 7.3 2.4, 9.6 5 C 10.6 6.1, 11.4 7.4, 12 8.6 C 12.8 6.8, 14 5, 16 4.2 C 19.6 2.9, 23 5.6, 21.6 9.8 C 20.6 13, 17 16.6, 12.6 20.6';
 const doodleHeart = (style, cls = '') => `<svg class="doodle ${cls}" style="${style}" viewBox="0 0 24 24" aria-hidden="true"><path d="${HEART_PATH}" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 // hand-drawn hearts dotted down the sides of a screen (never over the words in the middle)
@@ -119,45 +117,35 @@ function introScreen() {
   };
 }
 
-// Laid out like the inspiration: SAVE the DATE across the top, the couple in the middle with
-// hearts around them, the date underlined at the bottom.
+// Laid out like the groom's side invite (in this invite's own style): SAVE / the / DATE stacked
+// down the middle, then the names, the big day, month and year, a drawn underline and the
+// countdown, all centred on the page. No picture on this screen.
 function saveScreen() {
   const dates = saveDates.map(toDate);
-  const year = dates[dates.length - 1].getFullYear();
-  const daysLeft = Math.ceil((dates[0] - new Date()) / 864e5);
+  const d = dates[0];
+  const daysLeft = Math.ceil((d - new Date()) / 864e5);
   const when = dates.length === 1
-    ? `<p class="save__date">${dots(dates[0])}.${year}</p>`
-    : `<p class="save__date save__date--two">${dates.map(dots).join(' <span>&amp;</span> ')}</p><p class="save__year">${year}</p>`;
+    ? `<p class="save__day">${pad(d.getDate())}</p><p class="save__month">${MONTHS[d.getMonth()].toUpperCase()} &bull; ${d.getFullYear()}</p>`
+    : `<p class="save__days">${dates.map((x) => `${pad(x.getDate())} ${MONTHS[x.getMonth()].slice(0, 3).toUpperCase()}`).join(' <span>&amp;</span> ')}</p><p class="save__month">${d.getFullYear()}</p>`;
   const letters = (word, start) => [...word].map((c, i) => `<span style="--i:${start + i}">${c}</span>`).join('');
   return {
     auto: true,
     duration: config.timing.save,
     onEnter: () => setTimeout(() => burst(0.45), 900),
     html: `<section class="scene scene--save">
+      ${doodleHeart('left:8%;top:9%;width:26px;--r:-14deg;animation-delay:.9s')}
+      ${doodleHeart('right:12%;top:12%;width:22px;--r:10deg;animation-delay:1.05s')}
+      ${doodleHeart('left:10%;bottom:8%;width:22px;--r:-8deg;animation-delay:1.2s')}
+      ${doodleHeart('right:8%;bottom:5%;width:28px;--r:14deg;animation-delay:1.35s')}
       <h2 class="save__title" aria-label="Save the date">
-        ${dashes('l')}
         <span class="save__big crayon">${letters('SAVE', 0)}</span>
         <span class="save__the crayon">the</span>
         <span class="save__big crayon">${letters('DATE', 4)}</span>
-        ${dashes('r')}
       </h2>
-      <div class="save__art">
-        ${doodleHeart('left:4%;top:12%;width:30px;--r:-14deg;animation-delay:.9s', 'doodle--save')}
-        ${doodleHeart('right:6%;top:2%;width:26px;--r:8deg;animation-delay:1.05s', 'doodle--save')}
-        ${doodleHeart('left:-2%;top:56%;width:28px;--r:-6deg;animation-delay:1.2s', 'doodle--save')}
-        ${doodleHeart('right:0;top:40%;width:28px;--r:12deg;animation-delay:1.35s', 'doodle--save')}
-        ${couple([invite.saveArt], 'couple--save', { still: true })}
-      </div>
-      <div class="save__bottom">
-        <p class="save__names anim a3">${nameA} &amp; ${nameB}</p>
-        <div class="save__when anim pop a4">
-          ${doodleHeart('', 'doodle--inline')}
-          <div>${when}</div>
-          ${doodleHeart('', 'doodle--inline')}
-        </div>
-        <div class="save__line draw a5">${underline}</div>
-        ${daysLeft > 0 ? `<p class="save__count anim pop a6">${daysLeft} days to go!</p>` : ''}
-      </div>
+      <p class="save__names anim a3">${nameA} + ${nameB}</p>
+      <div class="save__when anim pop a4">${when}</div>
+      <div class="save__line draw a5">${underline}</div>
+      ${daysLeft > 0 ? `<p class="save__count anim pop a6">${daysLeft} days to go!</p>` : ''}
     </section>`,
   };
 }
@@ -177,7 +165,8 @@ function eventScreen(e) {
         ${heart('heart--small anim pop a1')}
         <h2 class="event__title write a2">${esc(e.label)}</h2>
         ${e.sub ? `<p class="event__sub anim a3">${esc(e.sub)}</p>` : ''}
-        <p class="event__when anim a3">${DAYS[d.getDay()]}, ${shortDate(e.date)} &middot; ${fmtTime(e.start)}</p>
+        <p class="event__when anim a3">${DAYS[d.getDay()]}, ${shortDate(e.date)} &middot; ${e.detail ? fmtTime(e.start) : when(e)}</p>
+        ${e.detail ? `<p class="event__detail anim a3">${esc(e.detail)}</p>` : ''}
         <div class="event__line draw a4">${squiggle}</div>
         <p class="event__venue anim a4">${esc(e.venue)}</p>
         <p class="event__city anim a5">${esc(e.city)}</p>
@@ -208,7 +197,7 @@ function rsvpScreen() {
     <button type="button" class="card" data-title="${esc(e.title)}" aria-pressed="${events.length === 1}">
       <span class="card__art"><img ${showWhole(e.art[e.art.length - 1]) ? 'class="card__img--whole" ' : ''}src="media/couple/${e.art[e.art.length - 1]}.webp" alt=""></span>
       <span class="card__label">${esc(e.label)}</span>
-      <span class="card__date">${DAYS[toDate(e.date).getDay()]}, ${shortDate(e.date)} &middot; ${fmtTime(e.start)}</span>
+      <span class="card__date">${DAYS[toDate(e.date).getDay()]}, ${shortDate(e.date)} &middot; ${when(e)}</span>
       <span class="card__tick" aria-hidden="true">&#10003;</span>
     </button>`).join('');
   return {
@@ -571,5 +560,5 @@ function load(key) { try { return localStorage.getItem(key); } catch { return nu
 function save(key, value) { try { localStorage.setItem(key, value); } catch {} }
 
 // Warm the cache so every screen is ready when it arrives
-for (const s of new Set(events.flatMap((e) => e.art).concat(['finale', 'thanks', 'intro', invite.saveArt]))) new Image().src = `media/couple/${s}.webp`;
+for (const s of new Set(events.flatMap((e) => e.art).concat(['finale', 'thanks', 'intro']))) new Image().src = `media/couple/${s}.webp`;
 for (const e of events) new Image().src = `media/deco/${e.deco}.webp`;
