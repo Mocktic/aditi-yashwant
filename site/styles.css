@@ -393,8 +393,8 @@ input::placeholder, textarea::placeholder { color: rgba(90, 36, 32, 0.45); font-
   padding: calc(var(--safe-top) + 30px) 28px calc(var(--safe-bottom) + 34px);
   text-align: center;
 }
-.rsvp__title { margin: 4px 0 14px; font: 700 54px/1 var(--font-hand); letter-spacing: 2px; color: var(--red); }
-.rsvp__now { display: block; font: 32px var(--font-script); letter-spacing: 0; transform: rotate(-4deg); }
+.rsvp__title { margin: 4px 0 14px; font: 700 min(54px, 13vw)/1 var(--font-hand); letter-spacing: 1px; color: var(--red); white-space: nowrap; }
+.rsvp__now { display: block; margin-top: 2px; font: 30px var(--font-script); letter-spacing: 0; white-space: normal; transform: rotate(-4deg); }
 .rsvp__form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
 .field { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
 .field__label { padding: 0; font: 700 20px var(--font-hand); color: var(--red); }

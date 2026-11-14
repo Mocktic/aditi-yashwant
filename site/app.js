@@ -206,7 +206,7 @@ function rsvpScreen() {
       <img class="deco deco--soft" src="media/deco/rsvp.webp" alt="">
       <div class="rsvp__scroll">
         ${heart('heart--rsvp anim pop a1')}
-        <h2 class="rsvp__title anim a2"><span class="crayon">RSVP</span> <span class="rsvp__now">now!</span></h2>
+        <h2 class="rsvp__title anim a2"><span class="crayon">Padharo Sa!</span> <span class="rsvp__now">we await you</span></h2>
         <form class="rsvp__form anim a3" novalidate>
           <label class="field">
             <span class="field__label">Your name</span>
@@ -229,7 +229,7 @@ function rsvpScreen() {
             <span class="field__error" data-for="message"></span>
           </label>
           <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <button class="btn btn--send" type="submit">Send RSVP</button>
+          <button class="btn btn--send" type="submit">Send Wishes!</button>
           <p class="rsvp__status" role="status"></p>
         </form>
         <button type="button" class="link-btn replay">&#8634; Watch the invite again</button>
@@ -246,7 +246,7 @@ function thanksScreen() {
       <div class="thanks__top">
         ${heart('heart--small anim pop a1')}
         <h2 class="thanks__title anim pop a2">Thank you<span class="thanks__name"></span>!</h2>
-        <p class="thanks__line anim a3">Your RSVP is in. We can't wait to celebrate with you!</p>
+        <p class="thanks__line anim a3">Your wishes have reached us. We can't wait to celebrate with you!</p>
         <p class="thanks__see anim a4"></p>
         <button type="button" class="link-btn replay anim a5">&#8634; Watch the invite again</button>
       </div>
@@ -524,7 +524,7 @@ form.addEventListener('submit', async (ev) => {
     status.textContent = "Oops, that didn't go through. Please check your connection and try again.";
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Send RSVP';
+    btn.textContent = 'Send Wishes!';
   }
 });
 
