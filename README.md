@@ -118,6 +118,6 @@ guest used, phone) and a **Summary** tab with a live count per event.
 `tools/preview.html`, start the server, and run `bash tools/make-preview.sh` (set `PORT=` if the
 server isn't on 5180).
 
-The `og:` tags in `site/index.html` need the full address. Replace `https://YOUR-DOMAIN/` (5 places)
-once the site is on its domain. WhatsApp caches previews, so after changing the picture share the
+The `og:` tags in `site/index.html` point at `https://yashwantwedsaditi.justfilms.co.in/preview.jpg`
+(the full address is needed). WhatsApp caches previews, so after changing the picture share the
 link with `?v=2` (then `?v=3`, …).
