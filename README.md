@@ -38,6 +38,7 @@ It combines with `&invite=…`.
 | Puja | `/?invite=puja` | Ganpati Sthapna, Grah Shanti | 30.11.2026 |
 | Sagai + Sangeet | `/?invite=sangeet` | Sagai, Sangeet Sandhya & Preetibhoj | 01.12.2026 |
 | Wedding | `/?invite=wedding` | Lagan Phere | 02.12.2026 |
+| Preetibhoj only | `/?invite=preetibhoj` | Preetibhoj & Sangeet Sandhya (1 Dec evening) | 01.12.2026 |
 
 The link decides which event screens and RSVP cards the guest sees. Each link
 has its own Save the Date date (`saveDate` on each link in `site/config.js`). Change the lists under `invites` in `site/config.js`.

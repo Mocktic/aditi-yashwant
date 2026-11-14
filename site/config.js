@@ -83,6 +83,7 @@ export default {
     puja: { events: ['ganpati', 'grahshanti'], saveDate: '2026-11-30' },
     sangeet: { events: ['sagai', 'sangeet'], saveDate: '2026-12-01' },
     wedding: { events: ['lagan'], saveDate: '2026-12-02' },
+    preetibhoj: { events: ['sangeet'], saveDate: '2026-12-01' },
   },
   defaultInvite: 'all',
 
